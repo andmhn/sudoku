@@ -16,7 +16,7 @@ Sound fx_missile_launch;
 //------------------------------------------------------------------------------
 void UpdateDrawFrame(void); // Update and Draw one frame
 
-#ifdef TEST
+#ifdef ENABLE_TEST
 int run_all_test(); // test runner
 #endif
 
@@ -25,8 +25,7 @@ int run_all_test(); // test runner
 //------------------------------------------------------------------------------
 int main()
 {
-    // TEST SETUP
-#ifdef TEST
+#ifdef ENABLE_TEST
     return run_all_test();
 #endif
 
