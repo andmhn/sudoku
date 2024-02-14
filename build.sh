@@ -16,22 +16,25 @@ do
         ./build/chess
         ;;
       test)
-        cmake -B build -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Test
-        cmake --build ./build &&\
+        cmake -B build/test -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Test
+        cmake --build ./build/test &&\
             printf "Running Test...\n\n" &&\
-            ./build/chess
+            ./build/test/chess
         ;;
       release)
-        cmake -B build -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Release
-        cmake --build ./build && cp build/compile_commands.json .
+        cmake -B build/release -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Release
+        cmake --build ./build/release || exit
+        cp ./build/release/chess ./build
         ;;
       debug)
-        cmake -B build -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Debug
-        cmake --build ./build && cp build/compile_commands.json .
+        cmake -B build/debug -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Debug
+        cmake --build ./build/debug || exit
+        cp build/debug/compile_commands.json .
+        cp build/debug/chess build/
 
         # generate ctags with dependency
         echo "Generating tags..."
-        cc -M -I build/_deps/raylib-build/raylib/include/ `find sources -name "*.c"` |\
+        cc -M -I build/debug/_deps/raylib-build/raylib/include/ `find sources -name "*.c"` |\
             sed -e 's/[\\ ]/\n/g' | \
             sed -e '/^$/d' -e '/\.o:[ \t]*$/d' | \
             ctags -L - --c++-kinds=+p --fields=+ianS --extras=+q
@@ -39,20 +42,20 @@ do
         ;;
       web)
         source "$HOME/repos/emsdk/emsdk_env.sh" || exit
-        mkdir -p build-emc 
+        mkdir -p build/emc 
         # Ensure asset folder is copied
-        rm -rf build-emc/assets || true
-        cp -R assets build-emc/assets
+        rm -rf build/emc/assets || true
+        cp -R assets build/emc/assets
         export CPLUS_INCLUDE_PATH=
-        cd build-emc &&
-        emcmake cmake .. -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-s USE_GLFW=3" -DCMAKE_EXECUTABLE_SUFFIX=".html" &&
+        cd build/emc &&
+        emcmake cmake ../.. -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-s USE_GLFW=3" -DCMAKE_EXECUTABLE_SUFFIX=".html" &&
         emmake make
 
         # now update chess_web folder
-        cd ..
+        cd ../..
         mkdir -p ../chess_web
         rm -rf ../chess_web/*
-        cp build-emc/chess.* ../chess_web
+        cp build/emc/chess.* ../chess_web
         mv ../chess_web/chess.html ../chess_web/index.html
         cp -R assets ../chess_web
         ;;

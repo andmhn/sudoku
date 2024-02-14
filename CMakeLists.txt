@@ -38,22 +38,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 
 add_definitions( -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} )
 
-function(debug)
-    SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -O0 -DDEBUG")
-
-    # Set the asset path macro to the absolute path on the dev machine
-    target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
-endfunction()
-
 if (CMAKE_BUILD_TYPE MATCHES "Test")
     file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_LIST_DIR}/tests/*.c")
     target_sources(${PROJECT_NAME} PRIVATE ${TEST_SOURCES})
-    add_definitions(-DTEST)
-    debug()
+    SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -O0 -DDEBUG -DTEST")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
 
-# Setting ASSETS_PATH
 elseif (CMAKE_BUILD_TYPE MATCHES "Debug")
-    debug()
+    SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -O0 -DDEBUG")
+    # Set the asset path macro to the absolute path on the dev machine
+    target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
 else()
     # Set the asset path macro in release mode to a relative path that assumes the assets folder is in the same directory as the game executable
     target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="./assets/")
@@ -66,7 +60,7 @@ if (${PLATFORM} STREQUAL "Web")
     # Tell Emscripten to build an .html file.
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Os")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -Os -Wall -s TOTAL_MEMORY=67108864 -s FORCE_FILESYSTEM=1 --preload-file assets/ --shell-file ../sources/minshell.html")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -Os -Wall -s TOTAL_MEMORY=67108864 -s FORCE_FILESYSTEM=1 --preload-file assets/ --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/sources/minshell.html")
     set(CMAKE_EXECUTABLE_SUFFIX ".html") # This line is used to set executable to build with the emscripten html
     set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
 endif()
