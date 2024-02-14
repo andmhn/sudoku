@@ -1,0 +1,12 @@
+compile_commands.json
+.vscode
+.idea
+.vs/
+cmake-build-debug/
+bin/
+build/
+out/
+CMakeSettings.json
+build-emc
+.cache
+tags
