@@ -1,4 +1,10 @@
 #!/bin/bash
+if [ $# -eq 0 ]; then
+    >&2 printf "No arguments provided\nBuilding Release...\n"
+    cmake -B build -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Release
+    cmake --build ./build && cp build/compile_commands.json .
+fi
+
 for arg in "$@"
 do
     case $arg in
@@ -8,6 +14,12 @@ do
         ;;
       run)
         ./build/chess
+        ;;
+      test)
+        cmake -B build -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Test
+        cmake --build ./build &&\
+            printf "Running Test...\n\n" &&\
+            ./build/chess
         ;;
       release)
         cmake -B build -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Release
@@ -49,6 +61,7 @@ printf "Invalid arg \'$arg\'\n\
 Use these build options\n\
 -   clean\n\
 -   run\n\
+-   test\n\
 -   release\n\
 -   debug\n\
 -   web\n"

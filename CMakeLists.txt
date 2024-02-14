@@ -38,12 +38,22 @@ target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 
 add_definitions( -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} )
 
-# Setting ASSETS_PATH
-if (CMAKE_BUILD_TYPE MATCHES "Debug")
+function(debug)
     SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -O0 -DDEBUG")
 
     # Set the asset path macro to the absolute path on the dev machine
     target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
+endfunction()
+
+if (CMAKE_BUILD_TYPE MATCHES "Test")
+    file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_LIST_DIR}/tests/*.c")
+    target_sources(${PROJECT_NAME} PRIVATE ${TEST_SOURCES})
+    add_definitions(-DTEST)
+    debug()
+
+# Setting ASSETS_PATH
+elseif (CMAKE_BUILD_TYPE MATCHES "Debug")
+    debug()
 else()
     # Set the asset path macro in release mode to a relative path that assumes the assets folder is in the same directory as the game executable
     target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="./assets/")
