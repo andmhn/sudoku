@@ -1,10 +1,12 @@
 .ONESHELL: # Applies to every targets in the file!
 .SHELLFLAGS += -e
 
-all:debug tags
+BIN:=sudoku
+
+all:debug #tags
 
 run:
-	./build/chess
+	./build/${BIN}
 
 tags:
 	cc -M -I build/debug/_deps/raylib-build/raylib/include/ `find sources tests -name "*.c"` |\
@@ -15,21 +17,20 @@ debug:
 	cmake -B build/debug -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Debug
 	cmake --build ./build/debug || exit
 	cp build/debug/compile_commands.json .
-	cp ./build/debug/chess ./build
+	cp ./build/debug/${BIN} ./build
 
 test:
 	cmake -B build/test -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Test
 	cmake --build ./build/test &&\
 		printf "Running Test...\n\n" &&\
-		./build/test/chess
+		./build/test/${BIN}
 
 release:
 	cmake -B build/release -S . -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Release
 	cmake --build ./build/release || exit
-	cp ./build/release/chess ./build
+	cp ./build/release/${BIN} ./build
 
 web:
-	./build_web.sh
-
+	./build_web.sh ${BIN}
 
 .PHONY: test clean format release debug tags

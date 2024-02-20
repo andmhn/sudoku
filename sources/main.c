@@ -35,7 +35,7 @@ int main()
     SetTraceLogLevel(LOG_WARNING);
 #endif
 
-    InitWindow(screenWidth, screenHeight, "Chess");
+    InitWindow(screenWidth, screenHeight, "Sudoku");
     InitAudioDevice();
 
     /// Load Assets
